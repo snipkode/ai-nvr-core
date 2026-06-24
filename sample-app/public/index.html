@@ -49,7 +49,8 @@ function setError() {
 }
 
 // WebSocket for alerts
-const ws = new WebSocket(`ws://${location.host}`);
+const wsProto = location.protocol === 'https:' ? 'wss' : 'ws';
+const ws = new WebSocket(`${wsProto}://${location.host}`);
 ws.onopen  = () => infoEl.textContent = 'WebSocket connected — waiting for alerts.';
 ws.onerror = () => infoEl.textContent = 'WebSocket unavailable.';
 ws.onmessage = ({ data }) => {

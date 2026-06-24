@@ -49,16 +49,20 @@ function broadcastToViewers(data) {
 
 // Throttle detection — max 3fps
 let lastDetect = 0;
+let detectCount = 0;
 async function maybeDetect(jpegBuf) {
   const now = Date.now();
   if (now - lastDetect < 333) return;
   lastDetect = now;
+  detectCount++;
   try {
     const det = await detector.detect(jpegBuf, 'browser');
+    if (detectCount % 10 === 1) console.log(`[detect #${detectCount}] objects: ${det?.objects?.length ?? 'err'}`);
     if (det && det.objects.length > 0) {
+      console.log('[detection]', det.objects.map(o => `${o.class}(${o.confidence})`).join(', '));
       broadcastToViewers({ type: 'detection', ...det });
     }
-  } catch { /* skip */ }
+  } catch (e) { console.error('[detect error]', e.message); }
 }
 
 wss.on('connection', (ws, req) => {
