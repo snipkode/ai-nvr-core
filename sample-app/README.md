@@ -1,38 +1,16 @@
-# sample-app
+# React + Vite
 
-Live view kamera dari Termux ke browser via MJPEG stream + Express.
+This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
 
-## Setup di Termux
+Currently, two official plugins are available:
 
-```sh
-# Install dependensi
-pkg install ffmpeg nodejs
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
 
-# Clone repo
-git clone https://github.com/snipkode/ai-nvr-core
-cd ai-nvr-core/sample-app
-npm install
+## React Compiler
 
-# Jalankan (kamera /dev/video0)
-npm start
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 
-# Atau pakai IP Webcam app (Android)
-CAM=rtsp://192.168.x.x:8080/h264_ulaw.sdp node server.js
-```
+## Expanding the Oxlint configuration
 
-## Akses dari browser
-
-Buka `http://<IP-Termux>:3000` di browser HP/PC yang sama jaringan.
-
-## Environment Variables
-
-| Var   | Default         | Keterangan                              |
-|-------|-----------------|-----------------------------------------|
-| `CAM` | `/dev/video0`   | Source kamera: path v4l2 atau RTSP URL  |
-| `PORT` | `3000`         | Port HTTP server                        |
-
-## Cara dapat IP Termux
-
-```sh
-ip addr show | grep 'inet ' | grep -v 127
-```
+If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
