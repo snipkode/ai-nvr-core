@@ -165,7 +165,7 @@ img{display:block}
 .step-option{padding:16px;border:2px solid var(--border);border-radius:var(--r2);cursor:pointer;transition:border-color .15s,background .15s;text-align:center;display:flex;flex-direction:column;align-items:center;gap:8px}
 .step-option:hover{border-color:var(--accent);background:rgba(59,130,246,.05)}
 .step-option.selected{border-color:var(--accent);background:rgba(59,130,246,.08)}
-.step-option-icon{font-size:28px}
+.step-option-icon{display:flex;align-items:center;justify-content:center;width:48px;height:48px;margin-bottom:2px}
 .step-option-label{font-size:14px;font-weight:600}
 .step-option-desc{font-size:12px;color:var(--txt2)}
 
@@ -174,15 +174,72 @@ img{display:block}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 
+/* Recording card */
+.rec-card{ display:flex; flex-direction:column }
+.rec-thumb{ width:100%; aspect-ratio:16/9; background:#000; display:block; flex-shrink:0 }
+
 @media(max-width:768px){
+  .rec-card{ flex-direction:row; align-items:stretch }
+  .rec-thumb{ width:140px; aspect-ratio:unset; height:auto; min-height:80px; object-fit:cover }
+}
+
+/* ─── Mobile (Apple-style) ──────────────────────────────────────── */
+@media(max-width:768px){
+  :root{ --topbar:52px }
+
   .sidebar{display:none}
   .topbar{display:flex}
-  .page{padding:14px}
-  .cards{grid-template-columns:1fr 1fr}
-  .cam-grid.g2,.cam-grid.g4{grid-template-columns:1fr}
-  .step-wizard{grid-template-columns:1fr}
+
+  /* Page content: 16px side padding, safe-area aware */
+  .page{
+    padding: 20px 16px 32px;
+    padding-left: max(16px, env(safe-area-inset-left));
+    padding-right: max(16px, env(safe-area-inset-right));
+    padding-bottom: max(32px, env(safe-area-inset-bottom));
+  }
+
+  /* Page header: tighter top margin on mobile */
+  .page-header{ margin-bottom: 16px }
+  .page-header h1{ font-size: 18px }
+
+  /* Stats cards: 2-col, slightly more compact */
+  .cards{
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .card{ padding: 14px 12px; border-radius: 14px }
+  .card-icon{ width: 34px; height: 34px; border-radius: 9px; margin-bottom: 10px }
+  .card-value{ font-size: 20px }
+
+  /* Guide steps: less padding */
+  .guide-step{ padding: 12px 14px; gap: 12px; border-radius: 14px }
+
+  /* Camera grid: single column */
+  .cam-grid.g2,.cam-grid.g4{ grid-template-columns: 1fr }
+
+  /* Step wizard: single column */
+  .step-wizard{ grid-template-columns: 1fr }
+
+  /* Buttons: full-width on tiny screens handled below */
+  .actions{ gap: 8px }
+
+  /* Activity items: tighter */
+  .activity-item{ padding: 8px 10px; font-size: 12px }
+
+  /* Drawer: full safe-area */
+  .drawer{
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
 }
+
 @media(max-width:400px){
-  .btn{padding:8px 12px;font-size:13px}
-  .page-header h1{font-size:17px}
+  .page{
+    padding-left: max(14px, env(safe-area-inset-left));
+    padding-right: max(14px, env(safe-area-inset-right));
+  }
+  .btn{ padding: 8px 12px; font-size: 13px }
+  .page-header h1{ font-size: 16px }
+  .cards{ gap: 8px }
 }

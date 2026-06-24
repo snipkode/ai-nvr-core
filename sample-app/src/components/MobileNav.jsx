@@ -2,10 +2,12 @@ import { NavLink } from 'react-router-dom';
 import { Icon } from './Icons';
 
 const NAV = [
-  { to: '/',        label: 'Dashboard', icon: 'dashboard', end: true },
-  { to: '/live',    label: 'Live Grid', icon: 'grid' },
-  { to: '/cameras', label: 'Kamera',   icon: 'cctv' },
-  { to: '/camera',  label: 'Sender',   icon: 'video' },
+  { to: '/',           label: 'Dashboard', icon: 'dashboard', end: true },
+  { to: '/live',       label: 'Live Grid', icon: 'grid' },
+  { to: '/recordings', label: 'Rekaman',   icon: 'video' },
+  { to: '/cameras',    label: 'Kamera',    icon: 'cctv' },
+  { to: '/camera',     label: 'Sender',    icon: 'monitor' },
+  { to: '/guide',      label: 'Panduan',   icon: 'guide' },
 ];
 
 export default function MobileNav({ open, onClose }) {

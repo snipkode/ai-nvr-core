@@ -43,7 +43,7 @@ export default function Dashboard() {
       {showGuide && (
         <>
           <p style={{ fontSize: 14, color: 'var(--txt2)', marginBottom: 16 }}>
-            Selamat datang! Ikuti langkah berikut untuk mulai memantau kamera. 👋
+            Selamat datang! Ikuti langkah berikut untuk mulai memantau kamera.
           </p>
           <div className="guide-steps">
             {[
@@ -67,13 +67,13 @@ export default function Dashboard() {
       {/* Stats */}
       <div className="cards">
         {[
-          { icon: '📹', label: 'Total Kamera', value: channels.length, color: 'var(--accent)', bg: 'rgba(59,130,246,.1)' },
-          { icon: '🟢', label: 'Aktif',        value: active,          color: 'var(--success)', bg: 'rgba(34,197,94,.1)' },
-          { icon: '⏺️', label: 'Merekam',     value: recording,       color: 'var(--danger)',  bg: 'rgba(239,68,68,.1)' },
-          { icon: '🔍', label: 'Deteksi',      value: detCount,        color: 'var(--purple)',  bg: 'rgba(139,92,246,.1)' },
+          { icon: 'camera',   label: 'Total Kamera', value: channels.length, color: 'var(--accent)', bg: 'rgba(59,130,246,.1)' },
+          { icon: 'wifi',     label: 'Aktif',        value: active,          color: 'var(--success)', bg: 'rgba(34,197,94,.1)' },
+          { icon: 'video',    label: 'Merekam',      value: recording,       color: 'var(--danger)',  bg: 'rgba(239,68,68,.1)' },
+          { icon: 'activity', label: 'Deteksi',      value: detCount,        color: 'var(--purple)',  bg: 'rgba(139,92,246,.1)' },
         ].map(({ icon, label, value, color, bg }) => (
           <div className="card" key={label}>
-            <div className="card-icon" style={{ background: bg, fontSize: 18 }}>{icon}</div>
+            <div className="card-icon" style={{ background: bg }}><Icon name={icon} size={18} color={color} /></div>
             <div className="card-label">{label}</div>
             <div className="card-value" style={{ color }}>{value}</div>
           </div>

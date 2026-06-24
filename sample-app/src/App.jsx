@@ -7,9 +7,11 @@ import Dashboard from './pages/Dashboard';
 import LiveGrid from './pages/LiveGrid';
 import CameraManager from './pages/CameraManager';
 import CameraPage from './pages/CameraPage';
+import Recordings from './pages/Recordings';
+import Guide from './pages/Guide';
 import './index.css';
 
-const TITLES = { '/': 'Dashboard', '/live': 'Live Grid', '/cameras': 'Kamera', '/camera': 'Sender' };
+const TITLES = { '/': 'Dashboard', '/live': 'Live Grid', '/cameras': 'Kamera', '/camera': 'Sender', '/recordings': 'Rekaman', '/guide': 'Panduan' };
 
 function Layout() {
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -28,8 +30,10 @@ function Layout() {
         <Routes>
           <Route path="/"        element={<Dashboard />} />
           <Route path="/live"    element={<LiveGrid />} />
-          <Route path="/cameras" element={<CameraManager />} />
-          <Route path="/camera"  element={<CameraPage />} />
+          <Route path="/cameras"    element={<CameraManager />} />
+          <Route path="/camera"     element={<CameraPage />} />
+          <Route path="/recordings" element={<Recordings />} />
+          <Route path="/guide"      element={<Guide />} />
         </Routes>
       </div>
     </div>

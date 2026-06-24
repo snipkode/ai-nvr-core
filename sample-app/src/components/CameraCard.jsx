@@ -2,7 +2,7 @@ import { useState, useRef } from 'react';
 import { Icon } from './Icons';
 import DetectionOverlay from './DetectionOverlay';
 
-export default function CameraCard({ channel, name }) {
+export default function CameraCard({ channel, name, hideFs }) {
   const [live, setLive]   = useState(true);
   const [fs, setFs]       = useState(false);
   const wrapRef = useRef(null);
@@ -51,13 +51,15 @@ export default function CameraCard({ channel, name }) {
             <span className="dot" />{live ? 'Live' : 'Offline'}
           </span>
         </div>
-        <button
-          onClick={toggleFs}
-          title="Fullscreen"
-          style={{ background: 'rgba(255,255,255,.15)', border: 'none', borderRadius: 6, padding: '4px 6px', cursor: 'pointer', display: 'flex', alignItems: 'center', backdropFilter: 'blur(4px)' }}
-        >
-          <Icon name={fs ? 'exitFs' : 'fullscreen'} size={14} color="#fff" />
-        </button>
+        {!hideFs && (
+          <button
+            onClick={toggleFs}
+            title="Fullscreen"
+            style={{ background: 'rgba(255,255,255,.2)', border: 'none', borderRadius: 8, padding: '6px 8px', cursor: 'pointer', display: 'flex', alignItems: 'center', backdropFilter: 'blur(4px)', minWidth: 32, minHeight: 32, justifyContent: 'center' }}
+          >
+            <Icon name={fs ? 'exitFs' : 'fullscreen'} size={18} color="#fff" />
+          </button>
+        )}
       </div>
     </div>
   );

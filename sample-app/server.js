@@ -243,6 +243,12 @@ app.delete('/api/channels/:id', (req, res) => {
   res.sendStatus(204);
 });
 
+app.get('/api/recordings', (_, res) => {
+  if (!existsSync(REC_DIR)) return res.json([]);
+  const cams = readdirSync(REC_DIR).filter(f => statSync(path.join(REC_DIR, f)).isDirectory());
+  res.json(cams);
+});
+
 app.get('/api/recordings/:channelId', (req, res) => {
   const dir = path.join(REC_DIR, req.params.channelId);
   if (!existsSync(dir)) return res.json([]);

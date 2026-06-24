@@ -55,14 +55,14 @@ function CameraItem({ ch, onDelete, onUpdate }) {
         <div className="camera-settings">
           <div className="toggle-wrap">
             <div className="toggle-info">
-              <div className="toggle-title">⏺ Rekam Otomatis</div>
+              <div className="toggle-title" style={{ display: 'flex', alignItems: 'center', gap: 6 }}><Icon name="video" size={14} color="var(--danger)" />Rekam Otomatis</div>
               <div className="toggle-sub">Simpan video ke server setiap 5 menit</div>
             </div>
             <Toggle checked={rec} onChange={handleRec} />
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-            <div className="form-label">🗑️ Hapus Rekaman Otomatis Setelah</div>
+            <div className="form-label" style={{ display: 'flex', alignItems: 'center', gap: 5 }}><Icon name="trash" size={13} />Hapus Rekaman Otomatis Setelah</div>
             <div className="autoremove-row">
               <input className="form-input" type="number" min={0} placeholder="0"
                 value={ar.value} onChange={e => setAr(a => ({ ...a, value: e.target.value }))} />
@@ -133,12 +133,12 @@ export default function CameraManager() {
           <p className="tip" style={{ marginBottom: 14 }}>Pilih sumber kamera:</p>
           <div className="step-wizard">
             <div className="step-option" onClick={() => setStep('rtsp')}>
-              <div className="step-option-icon">📡</div>
+              <div className="step-option-icon"><Icon name="wifi" size={28} color="var(--accent)" /></div>
               <div className="step-option-label">IP Camera / RTSP</div>
               <div className="step-option-desc">Kamera IP, CCTV, atau HP dengan app IP Webcam / DroidCam</div>
             </div>
             <div className="step-option" onClick={() => setStep('browser')}>
-              <div className="step-option-icon">📱</div>
+              <div className="step-option-icon"><Icon name="camera" size={28} color="var(--accent)" /></div>
               <div className="step-option-label">Kamera HP / Browser</div>
               <div className="step-option-desc">Gunakan kamera HP atau laptop langsung via browser</div>
             </div>
@@ -150,7 +150,7 @@ export default function CameraManager() {
       {step === 'rtsp' && (
         <>
           <p className="tip" style={{ marginBottom: 14 }}>
-            💡 Install <strong>IP Webcam</strong> di HP Android → Start Server → masukkan URL di bawah.
+            Install <strong>IP Webcam</strong> di HP Android → Start Server → masukkan URL di bawah.
           </p>
           {error && <div className="alert-error">{error}</div>}
           <form onSubmit={addRtsp} style={{ display: 'flex', flexDirection: 'column', gap: 12, maxWidth: 440 }}>
@@ -174,7 +174,7 @@ export default function CameraManager() {
               </span>
             </div>
             <button className="btn btn-primary" type="submit" disabled={loading} style={{ alignSelf: 'flex-start' }}>
-              {loading ? 'Menghubungkan…' : '✓ Tambah Kamera'}
+              {loading ? 'Menghubungkan…' : <><Icon name="plus" size={14} />Tambah Kamera</>}
             </button>
           </form>
         </>
@@ -195,7 +195,7 @@ export default function CameraManager() {
       {step === 'list' && (
         channels.length === 0
           ? <div className="empty-state">
-              <div style={{ fontSize: 40 }}>📷</div>
+              <Icon name="camera" size={40} color="var(--txt3)" />
               <div style={{ fontWeight: 600 }}>Belum ada kamera</div>
               <div style={{ fontSize: 13 }}>Tekan "+ Tambah" untuk mulai</div>
             </div>
