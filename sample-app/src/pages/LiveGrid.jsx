@@ -106,7 +106,7 @@ export default function LiveGrid() {
                   borderRadius: 'var(--r2)', overflow: 'hidden',
                   cursor: isGrid ? 'zoom-in' : 'default',
                 }}>
-                <CameraCard channel={ch.id} name={ch.name || ch.id} hideFs={isGrid} />
+                <CameraCard channel={ch.id} name={ch.name || ch.id} hideFs={isGrid} rotate={ch.rotate || 0} />
               </div>
             ))}
           </div>
@@ -125,7 +125,7 @@ export default function LiveGrid() {
           <div
             onClick={e => e.stopPropagation()}
             style={{ width: '100%', maxWidth: 900, aspectRatio: '16/9', borderRadius: 'var(--r2)', overflow: 'hidden', position: 'relative' }}>
-            <CameraCard channel={zoomed.id} name={zoomed.name || zoomed.id} />
+            <CameraCard channel={zoomed.id} name={zoomed.name || zoomed.id} rotate={zoomed.rotate || 0} />
             <button
               onClick={() => setZoomed(null)}
               style={{ position: 'absolute', top: 10, right: 10, background: 'rgba(0,0,0,.6)', border: 'none', borderRadius: 8, padding: 6, cursor: 'pointer', display: 'flex', backdropFilter: 'blur(4px)' }}>

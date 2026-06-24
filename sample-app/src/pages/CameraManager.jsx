@@ -15,6 +15,8 @@ function CameraItem({ ch, onDelete, onUpdate }) {
   const [open, setOpen] = useState(false);
   const [rec, setRec]   = useState(ch.recording);
   const [ar, setAr]     = useState(ch.autoRemove || { value: 0, unit: 'days' });
+  const [rotate, setRotate] = useState(ch.rotate || 0);
+  const [edit, setEdit] = useState({ name: ch.name || ch.id, url: ch.url || '' });
   const [saving, setSaving] = useState(false);
 
   const save = async (patch) => {
@@ -28,6 +30,8 @@ function CameraItem({ ch, onDelete, onUpdate }) {
   };
 
   const handleRec = (val) => { setRec(val); save({ recording: val }); };
+  const handleRotate = (val) => { setRotate(val); save({ rotate: val }); };
+  const saveEdit = () => save({ name: edit.name, ...(ch.type === 'rtsp' ? { url: edit.url } : {}) });
 
   return (
     <div className="camera-item">
@@ -53,6 +57,25 @@ function CameraItem({ ch, onDelete, onUpdate }) {
 
       {open && (
         <div className="camera-settings">
+          {/* ── Edit nama & URL ── */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <div className="form-group" style={{ margin: 0 }}>
+              <label className="form-label">Nama Kamera</label>
+              <input className="form-input" value={edit.name}
+                onChange={e => setEdit(v => ({ ...v, name: e.target.value }))} />
+            </div>
+            {ch.type === 'rtsp' && (
+              <div className="form-group" style={{ margin: 0 }}>
+                <label className="form-label">RTSP URL</label>
+                <input className="form-input" value={edit.url}
+                  onChange={e => setEdit(v => ({ ...v, url: e.target.value }))} />
+                <span className="form-hint">Mengubah URL akan merestart stream.</span>
+              </div>
+            )}
+            <button className="btn btn-primary btn-sm" style={{ alignSelf: 'flex-start' }}
+              onClick={saveEdit} disabled={saving}>{saving ? '…' : 'Simpan'}</button>
+          </div>
+
           <div className="toggle-wrap">
             <div className="toggle-info">
               <div className="toggle-title" style={{ display: 'flex', alignItems: 'center', gap: 6 }}><Icon name="video" size={14} color="var(--danger)" />Rekam Otomatis</div>
@@ -81,6 +104,16 @@ function CameraItem({ ch, onDelete, onUpdate }) {
                 : 'Set 0 = tidak pernah dihapus otomatis.'}
             </div>
           </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+            <div className="form-label">Rotasi Gambar</div>
+            <div style={{ display: 'flex', gap: 6 }}>
+              {[0, 90, 180, 270].map(r => (
+                <button key={r} className={`btn btn-sm ${rotate === r ? 'btn-primary' : 'btn-ghost'}`}
+                  onClick={() => handleRotate(r)}>{r}°</button>
+              ))}
+            </div>
+          </div>
         </div>
       )}
     </div>
@@ -90,26 +123,32 @@ function CameraItem({ ch, onDelete, onUpdate }) {
 export default function CameraManager() {
   const [channels, setChannels] = useState([]);
   const [step, setStep]   = useState('list');
-  const [form, setForm]   = useState({ id: '', url: '', name: '' });
+  const [form, setForm]   = useState({ url: '', name: '', ip: '', port: '8080' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const load = () => fetch('/api/channels').then(r => r.json()).then(setChannels).catch(() => {});
   useEffect(() => { load(); }, []);
 
-  const addRtsp = async (e) => {
-    e.preventDefault();
-    if (!form.id.trim() || !form.url.trim()) return setError('ID dan URL wajib diisi.');
+  const submit = async (url, name) => {
+    if (!url) return setError('URL wajib diisi.');
     setLoading(true); setError('');
     try {
       const res = await fetch('/api/channels', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: form.id.trim(), url: form.url.trim(), name: form.name.trim() || form.id.trim() }),
+        body: JSON.stringify({ url, name: name || url }),
       });
       if (!res.ok) throw new Error((await res.json()).error || 'Gagal');
-      setForm({ id: '', url: '', name: '' }); setStep('list'); load();
+      setForm({ url: '', name: '', ip: '', port: '8080' }); setStep('list'); load();
     } catch (err) { setError(err.message); }
     finally { setLoading(false); }
+  };
+
+  const addRtsp = (e) => { e.preventDefault(); submit(form.url.trim(), form.name.trim()); };
+  const addIpWebcam = (e) => {
+    e.preventDefault();
+    if (!form.ip.trim()) return setError('IP wajib diisi.');
+    submit(`http://${form.ip.trim()}:${form.port || 8080}/video`, form.name.trim());
   };
 
   const remove = async (id) => {
@@ -132,10 +171,15 @@ export default function CameraManager() {
         <>
           <p className="tip" style={{ marginBottom: 14 }}>Pilih sumber kamera:</p>
           <div className="step-wizard">
+            <div className="step-option" onClick={() => setStep('ipwebcam')}>
+              <div className="step-option-icon"><Icon name="wifi" size={28} color="var(--accent)" /></div>
+              <div className="step-option-label">IP Webcam (Android)</div>
+              <div className="step-option-desc">App IP Webcam di HP Android — cukup masukkan IP & port</div>
+            </div>
             <div className="step-option" onClick={() => setStep('rtsp')}>
               <div className="step-option-icon"><Icon name="wifi" size={28} color="var(--accent)" /></div>
-              <div className="step-option-label">IP Camera / RTSP</div>
-              <div className="step-option-desc">Kamera IP, CCTV, atau HP dengan app IP Webcam / DroidCam</div>
+              <div className="step-option-label">IP Camera / URL</div>
+              <div className="step-option-desc">Kamera IP, CCTV, DroidCam — masukkan URL lengkap</div>
             </div>
             <div className="step-option" onClick={() => setStep('browser')}>
               <div className="step-option-icon"><Icon name="camera" size={28} color="var(--accent)" /></div>
@@ -143,6 +187,38 @@ export default function CameraManager() {
               <div className="step-option-desc">Gunakan kamera HP atau laptop langsung via browser</div>
             </div>
           </div>
+        </>
+      )}
+
+      {/* Step: IP Webcam */}
+      {step === 'ipwebcam' && (
+        <>
+          <p className="tip" style={{ marginBottom: 14 }}>
+            Install <strong>IP Webcam</strong> di HP Android → Start Server → masukkan IP HP di bawah.
+          </p>
+          {error && <div className="alert-error">{error}</div>}
+          <form onSubmit={addIpWebcam} style={{ display: 'flex', flexDirection: 'column', gap: 12, maxWidth: 440 }}>
+            <div className="form-group">
+              <label className="form-label">Nama Kamera</label>
+              <input className="form-input" placeholder="Contoh: HP Depan"
+                value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
+            </div>
+            <div className="form-group">
+              <label className="form-label">IP Address HP</label>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <input className="form-input" placeholder="192.168.1.x" style={{ flex: 2 }}
+                  value={form.ip} onChange={e => setForm(f => ({ ...f, ip: e.target.value }))} />
+                <input className="form-input" placeholder="8080" style={{ flex: 1 }}
+                  value={form.port} onChange={e => setForm(f => ({ ...f, port: e.target.value }))} />
+              </div>
+              {form.ip && <span className="form-hint" style={{ color: 'var(--accent)' }}>
+                URL: http://{form.ip}:{form.port || 8080}/video
+              </span>}
+            </div>
+            <button className="btn btn-primary" type="submit" disabled={loading} style={{ alignSelf: 'flex-start' }}>
+              {loading ? 'Menghubungkan…' : <><Icon name="plus" size={14} />Tambah Kamera</>}
+            </button>
+          </form>
         </>
       )}
 
@@ -158,12 +234,6 @@ export default function CameraManager() {
               <label className="form-label">Nama Kamera</label>
               <input className="form-input" placeholder="Contoh: Pintu Depan"
                 value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
-            </div>
-            <div className="form-group">
-              <label className="form-label">ID Unik</label>
-              <input className="form-input" placeholder="cam1"
-                value={form.id} onChange={e => setForm(f => ({ ...f, id: e.target.value }))} />
-              <span className="form-hint">Huruf kecil, tanpa spasi. Contoh: cam1, pintu-depan</span>
             </div>
             <div className="form-group">
               <label className="form-label">RTSP URL</label>
