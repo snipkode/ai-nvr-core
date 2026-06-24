@@ -3,54 +3,73 @@ const express  = require('express');
 const https    = require('https');
 const http     = require('http');
 const { WebSocketServer } = require('ws');
-const { readFileSync } = require('fs');
+const { readFileSync }    = require('fs');
 const path     = require('path');
+const YoloDetector = require('./detector');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
 
-// HTTPS server (required for getUserMedia in browser)
+// Init YOLO detector
+const detector = new YoloDetector(
+  '/root/models/yolov8n.onnx',
+  '/root/models/coco.names',
+  0.45
+);
+detector.load().then(() => console.log('YOLO model loaded ✓')).catch(e => console.error('YOLO load error:', e.message));
+
+// HTTPS server
 let server;
 try {
   server = https.createServer({
     key:  readFileSync(path.join(__dirname, 'key.pem')),
     cert: readFileSync(path.join(__dirname, 'cert.pem')),
   }, app);
-  console.log('HTTPS mode');
 } catch {
   server = http.createServer(app);
-  console.log('HTTP mode (getUserMedia may not work outside localhost)');
 }
 
 const wss = new WebSocketServer({ server });
-
-// MJPEG HTTP clients
 const mjpegClients = new Set();
 
 function broadcastMjpeg(jpegBuf) {
   const header = `--frame\r\nContent-Type: image/jpeg\r\nContent-Length: ${jpegBuf.length}\r\n\r\n`;
   for (const res of mjpegClients) {
-    try {
-      res.write(Buffer.from(header));
-      res.write(jpegBuf);
-      res.write('\r\n');
-    } catch { mjpegClients.delete(res); }
+    try { res.write(Buffer.from(header)); res.write(jpegBuf); res.write('\r\n'); }
+    catch { mjpegClients.delete(res); }
   }
 }
 
-function broadcastAlert(data) {
+function broadcastToViewers(data) {
   const msg = JSON.stringify(data);
   for (const ws of wss.clients) {
     if (ws.role === 'viewer' && ws.readyState === 1) ws.send(msg);
   }
 }
 
+// Throttle detection — max 3fps
+let lastDetect = 0;
+async function maybeDetect(jpegBuf) {
+  const now = Date.now();
+  if (now - lastDetect < 333) return;
+  lastDetect = now;
+  try {
+    const det = await detector.detect(jpegBuf, 'browser');
+    if (det && det.objects.length > 0) {
+      broadcastToViewers({ type: 'detection', ...det });
+    }
+  } catch { /* skip */ }
+}
+
 wss.on('connection', (ws, req) => {
   const role = new URL(req.url, 'https://localhost').searchParams.get('role') || 'viewer';
   ws.role = role;
-
   if (role === 'sender') {
-    ws.on('message', (data, isBinary) => { if (isBinary) broadcastMjpeg(data); });
+    ws.on('message', (data, isBinary) => {
+      if (!isBinary) return;
+      broadcastMjpeg(data);
+      maybeDetect(data);
+    });
     console.log('Camera sender connected');
     ws.on('close', () => console.log('Camera sender disconnected'));
   }
@@ -69,9 +88,10 @@ app.get('/stream', (req, res) => {
 app.use(express.static(path.join(__dirname, 'public')));
 
 server.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server: https://0.0.0.0:${PORT}`);
-  console.log(`Camera: https://0.0.0.0:${PORT}/camera.html`);
-  console.log(`Viewer: https://0.0.0.0:${PORT}/`);
+  const proto = server instanceof https.Server ? 'https' : 'http';
+  console.log(`Server: ${proto}://0.0.0.0:${PORT}`);
+  console.log(`Camera: ${proto}://0.0.0.0:${PORT}/camera.html`);
+  console.log(`Viewer: ${proto}://0.0.0.0:${PORT}/`);
 });
 
 process.on('SIGINT', () => process.exit(0));

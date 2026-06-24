@@ -54,10 +54,23 @@ ws.onopen  = () => infoEl.textContent = 'WebSocket connected — waiting for ale
 ws.onerror = () => infoEl.textContent = 'WebSocket unavailable.';
 ws.onmessage = ({ data }) => {
   try {
-    const alert = JSON.parse(data);
-    showAlert(alert);
+    const msg = JSON.parse(data);
+    if (msg.type === 'detection') {
+      showDetection(msg);
+    } else {
+      showAlert(msg);
+    }
   } catch {}
 };
+
+function showDetection(det) {
+  const classes = [...new Set(det.objects.map(o => `${o.class} ${Math.round(o.confidence*100)}%`))].join(', ');
+  const el = document.createElement('div');
+  el.className = 'alert medium';
+  el.textContent = `🔍 ${classes}`;
+  alertsEl.prepend(el);
+  setTimeout(() => el.remove(), 3000);
+}
 
 function showAlert(alert) {
   const el = document.createElement('div');
