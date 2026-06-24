@@ -1,0 +1,32 @@
+{
+  "name": "ai-nvr-core",
+  "version": "1.0.0",
+  "description": "AI NVR engine: RTSP camera + OpenCV + YOLO real-time object detection",
+  "main": "src/index.js",
+  "scripts": {
+    "install": "node-gyp rebuild",
+    "build": "node-gyp rebuild",
+    "build:debug": "node-gyp rebuild --debug",
+    "test": "node --test test/*.test.js"
+  },
+  "keywords": [
+    "nvr",
+    "rtsp",
+    "yolo",
+    "opencv",
+    "object-detection",
+    "cctv",
+    "ai",
+    "surveillance"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "node-addon-api": "5.1.0",
+    "node-gyp": "10.1.0",
+    "ws": "^8.18.2"
+  },
+  "gypfile": true,
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

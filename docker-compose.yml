@@ -1,0 +1,22 @@
+services:
+  nvr:
+    build: .
+    restart: unless-stopped
+    volumes:
+      - ./models:/app/models:ro
+      - ./config:/app/config:ro
+      - ./output:/app/output
+    environment:
+      - NVR_CONFIG=/app/config/config.json
+    ports:
+      - "9000:9000"   # WebSocket events
+      - "3000:3000"   # Optional REST API
+    # GPU support (uncomment for CUDA)
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+    network_mode: host   # needed for RTSP access on local network
