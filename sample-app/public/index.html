@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI NVR Live View</title>
+<style>
+  * { margin: 0; box-sizing: border-box; }
+  body { background: #111; color: #eee; font-family: monospace; }
+  header { padding: 10px 16px; background: #1a1a2e; display: flex; align-items: center; gap: 12px; }
+  header h1 { font-size: 1rem; }
+  #status { font-size: .75rem; padding: 3px 8px; border-radius: 4px; background: #333; }
+  #status.live { background: #16a34a; }
+  #viewer { position: relative; max-width: 960px; margin: 16px auto; }
+  #viewer img { width: 100%; display: block; border-radius: 6px; background: #222; min-height: 240px; }
+  #alerts { position: absolute; top: 8px; right: 8px; display: flex; flex-direction: column; gap: 6px; max-width: 260px; }
+  .alert { background: rgba(220,38,38,.85); padding: 6px 10px; border-radius: 4px; font-size: .78rem; animation: fadein .2s; }
+  .alert.high { background: rgba(220,38,38,.9); }
+  .alert.medium { background: rgba(202,138,4,.9); }
+  @keyframes fadein { from { opacity:0; transform:translateX(20px); } to { opacity:1; transform:none; } }
+  #info { max-width: 960px; margin: 0 auto 24px; padding: 0 4px; font-size: .75rem; color: #888; }
+</style>
+</head>
+<body>
+<header>
+  <h1>📹 AI NVR Live View</h1>
+  <span id="status">connecting...</span>
+</header>
+<div id="viewer">
+  <img id="feed" src="/stream" alt="live feed" onload="setLive()" onerror="setError()">
+  <div id="alerts"></div>
+</div>
+<div id="info">Connecting to WebSocket for alerts...</div>
+
+<script>
+const statusEl = document.getElementById('status');
+const alertsEl = document.getElementById('alerts');
+const infoEl   = document.getElementById('info');
+
+function setLive() {
+  statusEl.textContent = 'LIVE';
+  statusEl.className = 'live';
+}
+function setError() {
+  statusEl.textContent = 'offline';
+  statusEl.className = '';
+  setTimeout(() => { document.getElementById('feed').src = '/stream?' + Date.now(); }, 3000);
+}
+
+// WebSocket for alerts
+const ws = new WebSocket(`ws://${location.host}`);
+ws.onopen  = () => infoEl.textContent = 'WebSocket connected — waiting for alerts.';
+ws.onerror = () => infoEl.textContent = 'WebSocket unavailable.';
+ws.onmessage = ({ data }) => {
+  try {
+    const alert = JSON.parse(data);
+    showAlert(alert);
+  } catch {}
+};
+
+function showAlert(alert) {
+  const el = document.createElement('div');
+  el.className = `alert ${alert.severity || 'medium'}`;
+  el.textContent = `[${alert.severity?.toUpperCase()}] ${alert.rule_id} — ${alert.objects?.map(o=>o.class).join(', ')}`;
+  alertsEl.prepend(el);
+  setTimeout(() => el.remove(), 5000);
+}
+</script>
+</body>
+</html>
