@@ -1,10 +1,14 @@
 'use strict';
 const express = require('express');
+const http    = require('http');
+const { WebSocketServer } = require('ws');
 const { spawn } = require('child_process');
 const path    = require('path');
 
-const app  = express();
-const PORT = process.env.PORT || 3000;
+const app    = express();
+const server = http.createServer(app);
+const wss    = new WebSocketServer({ server });
+const PORT   = process.env.PORT || 3000;
 
 // SSE clients untuk MJPEG
 const clients = new Set();
@@ -18,9 +22,23 @@ let frameBuf   = Buffer.alloc(0);
 const SOI = Buffer.from([0xff, 0xd8]);
 const EOI = Buffer.from([0xff, 0xd9]);
 
+function buildFfmpegArgs() {
+  const fs = require('fs');
+  if (CAM_SOURCE.startsWith('rtsp://') || CAM_SOURCE.startsWith('http')) {
+    return ['-i', CAM_SOURCE];
+  }
+  if (fs.existsSync(CAM_SOURCE)) {
+    return ['-f', 'v4l2', '-i', CAM_SOURCE];
+  }
+  // VPS fallback: synthetic test source
+  console.log('No camera device found — using ffmpeg testsrc');
+  return ['-f', 'lavfi', '-i', 'testsrc=size=640x480:rate=15'];
+}
+
 function startCapture() {
+  const inputArgs = buildFfmpegArgs();
   ffmpegProc = spawn('ffmpeg', [
-    '-f', 'v4l2', '-i', CAM_SOURCE,
+    ...inputArgs,
     '-f', 'image2pipe', '-vcodec', 'mjpeg',
     '-q:v', '5', '-vf', 'fps=15',
     'pipe:1'
@@ -78,7 +96,27 @@ app.get('/stream', (req, res) => {
 // Serve HTML
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.listen(PORT, '0.0.0.0', () => {
+// Broadcast alert to all WS clients
+function broadcastAlert(alert) {
+  const msg = JSON.stringify(alert);
+  for (const client of wss.clients) {
+    if (client.readyState === 1) client.send(msg);
+  }
+}
+
+// Demo: send a fake alert every 5s so you can see it working
+setInterval(() => {
+  broadcastAlert({
+    rule_id: 'demo',
+    rule_type: 'object_presence',
+    camera_id: 'cam1',
+    timestamp: Date.now(),
+    severity: 'medium',
+    objects: [{ class: 'person', confidence: 0.92 }]
+  });
+}, 5000);
+
+server.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running at http://0.0.0.0:${PORT}`);
   console.log(`Stream: http://0.0.0.0:${PORT}/stream`);
   startCapture();
