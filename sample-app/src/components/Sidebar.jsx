@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Grid2x2, Camera, Video, ChevronLeft, ChevronRight, Cctv } from 'lucide-react';
+import { Icon } from './Icons';
 
 const NAV = [
-  { to: '/',        label: 'Dashboard', icon: LayoutDashboard, end: true },
-  { to: '/live',    label: 'Live Grid',  icon: Grid2x2 },
-  { to: '/cameras', label: 'Cameras',   icon: Camera },
-  { to: '/camera',  label: 'Sender',    icon: Video },
+  { to: '/',        label: 'Dashboard', icon: 'dashboard', end: true },
+  { to: '/live',    label: 'Live Grid', icon: 'grid' },
+  { to: '/cameras', label: 'Kamera',   icon: 'cctv' },
+  { to: '/camera',  label: 'Sender',   icon: 'video' },
 ];
 
 export default function Sidebar() {
@@ -14,21 +14,22 @@ export default function Sidebar() {
   return (
     <aside className={`sidebar${collapsed ? ' collapsed' : ''}`}>
       <div className="sidebar-logo">
-        <Cctv size={22} />
+        <Icon name="cctv" size={22} color="var(--accent)" />
         <span>AI NVR</span>
       </div>
       <nav className="sidebar-nav">
-        {NAV.map(({ to, label, icon: Icon, end }) => (
-          <NavLink key={to} to={to} end={end}
-            className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}>
-            <Icon size={18} />
-            <span>{label}</span>
+        {NAV.map(({ to, label, icon, end }) => (
+          <NavLink key={to} to={to} end={end} className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}>
+            <Icon name={icon} size={18} />
+            <span className="label">{label}</span>
           </NavLink>
         ))}
       </nav>
-      <button className="toggle-btn" onClick={() => setCollapsed(c => !c)} title="Toggle sidebar">
-        {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
-      </button>
+      <div className="sidebar-footer">
+        <button className="toggle-btn" onClick={() => setCollapsed(c => !c)}>
+          <Icon name={collapsed ? 'chevRight' : 'chevLeft'} size={16} />
+        </button>
+      </div>
     </aside>
   );
 }

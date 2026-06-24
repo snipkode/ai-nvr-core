@@ -1,36 +1,63 @@
-import { useState } from 'react';
-import { VideoOff } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { Icon } from './Icons';
 import DetectionOverlay from './DetectionOverlay';
 
 export default function CameraCard({ channel, name }) {
-  const [live, setLive] = useState(true);
+  const [live, setLive]   = useState(true);
+  const [fs, setFs]       = useState(false);
+  const wrapRef = useRef(null);
+
+  const toggleFs = () => {
+    const el = wrapRef.current;
+    if (!document.fullscreenElement) {
+      el?.requestFullscreen?.().then(() => setFs(true)).catch(() => {});
+    } else {
+      document.exitFullscreen?.().then(() => setFs(false)).catch(() => {});
+    }
+  };
+
+  // Update fs state when user presses Escape
+  if (typeof document !== 'undefined') {
+    document.onfullscreenchange = () => setFs(!!document.fullscreenElement);
+  }
 
   return (
-    <div className="cam-card" style={{ height: '100%' }}>
-      <div className="stream-wrap" style={{ height: 'calc(100% - 36px)' }}>
-        {live ? (
+    <div ref={wrapRef} style={{ height: '100%', position: 'relative', background: '#000', borderRadius: 'inherit', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+      {/* Stream */}
+      <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
+        {live && (
           <img
             src={`/stream/${channel}`}
-            alt={name || channel}
+            alt={name}
             onLoad={() => setLive(true)}
             onError={() => setLive(false)}
-            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
           />
-        ) : null}
+        )}
         {!live && (
-          <div className="stream-empty">
-            <VideoOff size={28} />
-            <span>{channel}</span>
+          <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 8, color: 'var(--txt3)' }}>
+            <Icon name="videoOff" size={32} color="var(--txt3)" />
+            <span style={{ fontSize: 12 }}>Offline</span>
           </div>
         )}
         <DetectionOverlay channel={channel} />
       </div>
-      <div className="cam-card-bar">
-        <span>{name || channel}</span>
-        <span className={`badge ${live ? 'live' : 'offline'}`}>
-          <span className="dot" />
-          {live ? 'Live' : 'Offline'}
-        </span>
+
+      {/* Bottom bar */}
+      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '20px 10px 6px', background: 'linear-gradient(transparent,rgba(0,0,0,.75))', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+          <span style={{ fontSize: 12, fontWeight: 600, color: '#fff', maxWidth: 120, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{name || channel}</span>
+          <span className={`badge ${live ? 'live' : 'offline'}`} style={{ fontSize: 10, padding: '1px 6px' }}>
+            <span className="dot" />{live ? 'Live' : 'Offline'}
+          </span>
+        </div>
+        <button
+          onClick={toggleFs}
+          title="Fullscreen"
+          style={{ background: 'rgba(255,255,255,.15)', border: 'none', borderRadius: 6, padding: '4px 6px', cursor: 'pointer', display: 'flex', alignItems: 'center', backdropFilter: 'blur(4px)' }}
+        >
+          <Icon name={fs ? 'exitFs' : 'fullscreen'} size={14} color="#fff" />
+        </button>
       </div>
     </div>
   );

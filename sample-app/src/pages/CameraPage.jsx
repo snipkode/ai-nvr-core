@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Video, VideoOff, Copy } from 'lucide-react';
+import { Icon } from '../components/Icons';
 
 const CHANNEL = `browser-${Math.random().toString(36).slice(2, 8)}`;
 const FPS = 15;
@@ -73,7 +73,7 @@ export default function CameraPage() {
             <code style={{ color: 'var(--accent)', fontSize: 13 }}>{CHANNEL}</code>
           </div>
           <button className="btn btn-sm btn-ghost" onClick={copy}>
-            <Copy size={13} />{copied ? 'Copied!' : 'Copy'}
+            <Icon name="activity" size={13} />{copied ? 'Copied!' : 'Copy'}
           </button>
         </div>
 
@@ -86,7 +86,7 @@ export default function CameraPage() {
             style={{ width: '100%', minHeight: 200, background: '#000', display: 'block' }} />
           {!streaming && (
             <div className="stream-empty">
-              <VideoOff size={28} />
+              <Icon name="videoOff" size={28} />
               <span>Camera preview will appear here</span>
             </div>
           )}
@@ -97,11 +97,11 @@ export default function CameraPage() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           {!streaming ? (
             <button className="btn btn-primary" onClick={start}>
-              <Video size={15} />Start Streaming
+              <Icon name="video" size={15} />Start Streaming
             </button>
           ) : (
             <button className="btn btn-danger" onClick={() => stop()}>
-              <VideoOff size={15} />Stop Streaming
+              <Icon name="stop" size={15} />Stop Streaming
             </button>
           )}
           {streaming && (

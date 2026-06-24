@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Camera, MonitorPlay, Video, Cpu, PlusCircle } from 'lucide-react';
+import { Icon } from '../components/Icons';
 
 function fmt(ts) { return new Date(ts).toLocaleTimeString(); }
 
@@ -36,7 +36,7 @@ export default function Dashboard() {
     <div className="page" style={{ animation: 'fadeIn .3s' }}>
       <div className="page-header">
         <h1>Dashboard</h1>
-        <Link to="/cameras" className="btn btn-primary btn-sm"><PlusCircle size={14} />Add Camera</Link>
+        <Link to="/cameras" className="btn btn-primary btn-sm"><Icon name="plus" size={14} />Add Camera</Link>
       </div>
 
       {/* Onboarding guide for first-time users */}
@@ -82,8 +82,8 @@ export default function Dashboard() {
 
       {channels.length > 0 && (
         <div className="actions">
-          <Link to="/live"    className="btn btn-primary"><MonitorPlay size={15} />Live Grid</Link>
-          <Link to="/cameras" className="btn btn-ghost"  ><Camera size={15} />Kelola Kamera</Link>
+          <Link to="/live"    className="btn btn-primary"><Icon name="monitor" size={15} />Live Grid</Link>
+          <Link to="/cameras" className="btn btn-ghost"  ><Icon name="camera" size={15} />Kelola Kamera</Link>
         </div>
       )}
 

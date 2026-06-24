@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
-import { Menu } from 'lucide-react';
+import { Icon } from './components/Icons';
 import Sidebar from './components/Sidebar';
 import MobileNav from './components/MobileNav';
 import Dashboard from './pages/Dashboard';
@@ -9,31 +9,22 @@ import CameraManager from './pages/CameraManager';
 import CameraPage from './pages/CameraPage';
 import './index.css';
 
-const TITLES = {
-  '/':        'Dashboard',
-  '/live':    'Live Grid',
-  '/cameras': 'Cameras',
-  '/camera':  'Sender',
-};
+const TITLES = { '/': 'Dashboard', '/live': 'Live Grid', '/cameras': 'Kamera', '/camera': 'Sender' };
 
 function Layout() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const { pathname } = useLocation();
-  const title = TITLES[pathname] ?? 'AI NVR';
-
   return (
     <div className="layout">
       <Sidebar />
       <MobileNav open={drawerOpen} onClose={() => setDrawerOpen(false)} />
-
       <div className="main">
         <header className="topbar">
-          <button className="btn-icon btn" onClick={() => setDrawerOpen(true)}>
-            <Menu size={18} />
+          <button className="icon-btn" onClick={() => setDrawerOpen(true)}>
+            <Icon name="menu" size={20} />
           </button>
-          <span className="topbar-title">{title}</span>
+          <span style={{ fontWeight: 700, fontSize: 15, flex: 1 }}>{TITLES[pathname] ?? 'AI NVR'}</span>
         </header>
-
         <Routes>
           <Route path="/"        element={<Dashboard />} />
           <Route path="/live"    element={<LiveGrid />} />
@@ -46,9 +37,5 @@ function Layout() {
 }
 
 export default function App() {
-  return (
-    <BrowserRouter>
-      <Layout />
-    </BrowserRouter>
-  );
+  return <BrowserRouter><Layout /></BrowserRouter>;
 }
